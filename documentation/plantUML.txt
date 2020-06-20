@@ -1,0 +1,65 @@
+@startuml
+game_API -right-> manage_step
+game_API -up-> connection_control
+manage_step <|.right. game_control
+game_control -up->connection_control
+game_control -right->game_make
+
+note top of game_make 
+<size:10>Конструктор, на основе clear_board.txt,
+<size:10>создает файл game_name.txt, 
+<size:10>в котором происходит сама игра.
+<size:10>set-функция меняет значения в матрице,
+<size:10>get-функции берут из матрицы состояни "фигур".
+end note
+
+
+class game_API {
++$_COOKIE["id"];
++$_COOKIE["hash"];
+
++start_game(state, key)
++make_step(figure, point A, point B)
++status_game()
+
+}
+
+class connection_control {
++state{
+NEW, EXIST}
+
+-game{hash - game_name, gamer_1, gamer_2, queue} 
+
++control_start(key)
+-control_key(key)
+-control_end()
+
++get_valid_gamer(id, hash)
++get_game_name(hash) 	
+}
+
+class  manage_step <<interface>> {
++set_step()
++get_status()
+}
+
+class game_control {
++set_step() {}
++get_status() {}
+
+-check_valid()
+-control_exist_game()
+-control_step()
+-control_king_safety()
+-control_checkmate()
+}
+
+class game_make {
+-fill_board
+
++construct_board(game_name)
++set_on_board()
++get_board_status()
++get_figure_status()
+}
+@enduml
