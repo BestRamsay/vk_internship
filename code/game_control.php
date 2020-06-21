@@ -17,15 +17,20 @@ class game_control implements manage_step
 	}
 
 	public function set_step($figure, $start, $finish){
-
+ 		return chech_valid($key_phrase);
 	}
 
 }
 
 
+function check_valid($key_phrase)
+{
+	return control_valid_key_game($key_phrase, NEED);
+}
+
 function view_status_game($key_phrase)
 {
-	return control_valid_key($key_phrase, NEED);
+	return chech_valid($key_phrase);
 }
 
 

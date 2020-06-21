@@ -1,18 +1,18 @@
 <?php
-
+	
 define(NEW_STR, "<br />");
 define(NEW_GAME , "new");
 define(EXIST , "exist");
 define(NEED, 1);
 define(NOT_NEED, 0);
 
-interface work_table{
+interface connection_user{
 
 	public function control_start($status,$key);
 
 }
 
-class connection_control implements  work_table{
+class connection_control implements connection_user{
 	
 	public function control_start($status,$key){
 		switch ($status) {
@@ -38,15 +38,6 @@ class connection_control implements  work_table{
 		
 	}
 
-	/*public function status_game($key){
-		if (control_valid_key($key,NOT_NEED)) {
-			echo "VALID";
-		}
-		else {
-			echo "INVALID";
-		}
-	}*/
-
 }
 
 function create_game($key_phrase){	
@@ -60,7 +51,7 @@ function create_game($key_phrase){
 }
 
 
-function control_valid_key($key_phrase, $need_game_number){
+function control_valid_key_game($key_phrase, $need_game_number){
 
 	$table = fopen("table_hash_game.txt", "rb");
 	$found_hash = 0;
@@ -98,6 +89,12 @@ function control_valid_key($key_phrase, $need_game_number){
 		return 0;
 	}	
 	
+}
+
+
+function control_end($name)
+{
+	//удалить записи из table_hash_game.txt и удалить папку ./game/$name
 }
 
 ?>

@@ -1,16 +1,27 @@
 @startuml
 game_API -right-> manage_step
-game_API -up-> connection_control
+game_API -up-> connection_user
+connection_control .left.|> connection_user
 manage_step <|.right. game_control
 game_control -up->connection_control
 game_control -right->game_make
 
+
 note top of game_make 
 <size:10>Конструктор, на основе clear_board.txt,
-<size:10>создает файл game_name.txt, 
+<size:10>создает файл game_name.txt в папке /game/game_name, 
 <size:10>в котором происходит сама игра.
 <size:10>set-функция меняет значения в матрице,
-<size:10>get-функции берут из матрицы состояни "фигур".
+<size:10>get-функции берут из матрицы состояния "фигур".
+end note
+
+
+note top of connection_control 
+<size:10>Конструктор заполняет(сначала создает) файл,
+<size:10>table_hash_game.txt,в котором хранится хеш  
+<size:10> и соответствующие ему номер игры.
+<size:10>По ним происходит валидация пользователей
+<size:10>и поиск номера игры.
 end note
 
 
@@ -25,22 +36,21 @@ class game_API {
 }
 
 class connection_control {
-+state{
-NEW, EXIST}
 
--game{hash - game_name, gamer_1, gamer_2, queue} 
++control_start(status,key)
 
-+control_start(key)
--control_key(key)
+-create_game(key_phrase)
 -control_end()
-
-+get_valid_gamer(id, hash)
-+get_game_name(hash) 	
+-control_valid_key_game(key_phrase, need_game_number)
 }
 
 class  manage_step <<interface>> {
 +set_step()
 +get_status()
+}
+
+class connection_user <<interface>> {
++control_start(status,key)
 }
 
 class game_control {
