@@ -8,9 +8,11 @@ include_once 'game_control.php';
 $connection = new connection_control();
 $game = new game_control(); 
 
+//setcookie("id", "" , time() - HOUR);
+//$connection->control_start(FIRST_START, "");
+//$connection->control_start(NEW_GAME, "");
+//$connection->control_start(NEW_GAME, "");
 
-$connection->control_start(NEW_GAME, "key");
-
-//echo $game->get_status("key");
+$connection->control_start(EXIST, "6");
 
 ?>
