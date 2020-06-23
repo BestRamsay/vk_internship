@@ -1,26 +1,18 @@
 <?php
 	
 define(NEW_STR, "<br />");
-
 define(NEW_GAME , "new");
 define(EXIST , "exist");
 
 define(NEED, 1);
 define(NOT_NEED, 0);
-
 define(HOUR, 3600);
-
 define(MAX_SHIFT, 100);
-
 define(WHITE, 1);
-define(BLACK, -1);
-
 define(NO_SECOND_PLAYER, 0);
 
 interface connection_user{
-
 	public function control_start($status,$key);
-
 }
 
 class connection_control implements connection_user{
@@ -46,36 +38,48 @@ class connection_control implements connection_user{
 	}
 }
 
-function get_id()
-{
-	setcookie("id", rand(1, 200000), time() + HOUR);
+function get_id(){
+	if(!isset($_COOKIE["id"])){
+		setcookie("id", rand(1, 200000), time() + HOUR);
+	}
 }
+
+
+function get_hash($key){
+	setcookie("hash", md5($key) , time() + HOUR);
+	if(!isset($_COOKIE["hash"]) || $_COOKIE["hash"] != md5($key)){
+		header("Refresh: 0");
+	}
+}
+
 
 function create_game($key_phrase){	
-	
-	static $shift = 0;
-	$shift == MAX_SHIFT ? $shift = 0 : $shift++ ;
-	$table = fopen("table_hash_game.txt", "ab");
-	$game_name = time()+$shift;
+	get_hash($key_phrase);
 
+	$game_name = time();
 
+	if (!file_exists("./game/$game_name")  && !control_valid_key_game(md5($key_phrase),NOT_NEED) ){
+		$shift == MAX_SHIFT ? $shift = 0 : $shift++ ;
+		$table = fopen("table_hash_game.txt", "ab");
 		
-	mkdir("./game/$game_name");	
-	$info = fopen("./game/$game_name/"."$game_name"."_info.txt", "ab");
-	
-	fwrite($info, $_COOKIE["id"]."\n"."0"."\n");
-	fwrite($table, md5($key_phrase)."\n".$game_name."\n");
-	fclose($table);
-	fclose($info);
+		mkdir("./game/$game_name");
 
+		$info = fopen("./game/$game_name/"."$game_name"."_info.txt", "ab");
+		$game = fopen("./game/$game_name/"."$game_name".".txt", "w");
+		fwrite($info, $_COOKIE["id"]."\n"."0"."\n".WHITE);
+		fwrite($table, md5($key_phrase)."\n".$game_name."\n");
+		fclose($table);
+		fclose($info);
+		fclose($game);
+	}
 }
 
 
-function control_valid_key_game($key_phrase, $need_game_number){
+function control_valid_key_game($hash, $need_game_number){
 
 	$table = fopen("table_hash_game.txt", "c+b");
 	$found_hash = 0;
-	$control_phrase = md5($key_phrase)."\n";
+	$control_phrase = $hash."\n";
 
 	if ($need_game_number == NEED){
 		$found_game = 0;
@@ -111,38 +115,30 @@ function control_valid_key_game($key_phrase, $need_game_number){
 }
 
 
-function control_end($name)
-{
-	//удалить записи из table_hash_game.txt и удалить папку ./game/$name
-}
 
-function add_gamer($key)
-{
-	$check_value = trim(control_valid_key_game($key,NEED));
+function add_gamer($key){
+	get_hash($key);
+	$check_value = trim(control_valid_key_game(md5($key),NEED));
 	if (!($check_value == 0) ) {
-		//echo "VALID".NEW_STR;
+
 		$info = fopen("./game/$check_value/$check_value"."_info.txt", "c+b");
 		$gamer_1 = fgets($info);
 		$gamer_2 = fgets($info);
-		//fclose($info);
+		$queue = fgets($info);
+		fseek($info, 0);
 
-		echo $_COOKIE["id"].NEW_STR;
-		//setcookie("id", "" , time() - HOUR);
 		if (!isset($_COOKIE["id"])){
 			if ($gamer_2 == NO_SECOND_PLAYER){
-				fseek($info, 0);
-				fwrite($info, $gamer_1.$_COOKIE["id"]."\n".WHITE);
-				echo $_COOKIE["id"].NEW_STR;
+				#play with yourself
+				fwrite($info, $gamer_1.$_COOKIE["id"]."\n".$queue);
 			}
 			else {
 				echo "There are already 2 players in the game".NEW_STR;
-				echo $_COOKIE["id"].NEW_STR;
 			}
 		}
 		else{
 			if ($gamer_2 == NO_SECOND_PLAYER){
-				fseek($info, 0);
-				fwrite($info, $gamer_1.$_COOKIE["id"]."\n".WHITE);
+				fwrite($info, $gamer_1.$_COOKIE["id"]."\n".$queue);
 			}
 			else {
 				echo "There are already 2 players in the game".NEW_STR;
@@ -152,9 +148,29 @@ function add_gamer($key)
 		fclose($info);
 	}
 	else{
-		echo "INVALID";
+		echo "INVALID KEY";
 	}
-	//$gamer = rand(2001, 3000);
+
 }
+
+
+function control_end($name){
+
+    $file = @file("table_hash_game.txt");
+    $num = 0; 
+    while (!($file[$num] == "$name"."\n")) {
+    	$num++;
+    }
+    unset($file[$num]);
+    unset($file[$num+1]);
+    $fileOpen = @fopen("table_hash_game.txt","w"); 
+    fputs($fileOpen,implode("",$file)); 
+    fclose($fileOpen);
+
+    unlink("./game/$name/$name"."_info.txt");
+	unlink("./game/$name/$name".".txt");
+	rmdir("./game/$name");
+}
+
 
 ?>
