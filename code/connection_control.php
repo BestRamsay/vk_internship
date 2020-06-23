@@ -8,7 +8,7 @@ define(NEED, 1);
 define(NOT_NEED, 0);
 define(HOUR, 3600);
 define(MAX_SHIFT, 100);
-define(WHITE, 1);
+define(WHITE, 0);
 define(NO_SECOND_PLAYER, 0);
 
 interface connection_user{
@@ -157,12 +157,12 @@ function add_gamer($key){
 function control_end($name){
 
     $file = @file("table_hash_game.txt");
-    $num = 0; 
+    $num = 1; 
     while (!($file[$num] == "$name"."\n")) {
     	$num++;
     }
+    unset($file[$num-1]);
     unset($file[$num]);
-    unset($file[$num+1]);
     $fileOpen = @fopen("table_hash_game.txt","w"); 
     fputs($fileOpen,implode("",$file)); 
     fclose($fileOpen);
