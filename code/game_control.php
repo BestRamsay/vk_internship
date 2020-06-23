@@ -1,6 +1,7 @@
 <?php
 
 include_once 'connection_control.php';
+include_once 'game_make.php';
 
 define(WHITE, 1);
 define(BLACK, 0);
@@ -10,43 +11,38 @@ interface manage_step {
 
 	public function get_status($key);
 	public function set_step($figure, $start, $finish);
+	public function update_board();
 
 }
 
 
 class game_control implements manage_step
 {
-	public function get_status($key){
-		return view_status_game($key);
+	public function get_status(){
+		return view_status_game();
 	}
 
 	public function set_step($figure, $start, $finish){
  		return chech_valid($key_phrase);
 	}
 
+	public function update_board(){
+
+
+	}
+
 }
 
 
-function check_valid($key_phrase)
-{
-	return control_valid_key_game($key_phrase, NEED);
-}
 
 function view_status_game($key_phrase)
 {
-	return chech_valid($key_phrase);
+	return control_user($_COOKIE["hash"] , $_COOKIE["id"]);
 }
 
-
-function create_board($game_number)
-{
-	//проверка на существование папки game_number
-	//создание доски
-}
 
 function change_position($figure, $start, $finish)
 {
-	//[]вызываем create_board()
 	//[]проходим миллион проверок
 	if (all_control()) {
 		# code...
@@ -76,14 +72,10 @@ function control_user($hash , $id)
 		fseek($info, 0);
 
 		if ($gamer_1 == $id || $gamer_2 == $id) {
-			if ($queue % 2 == WHITE && $gamer_1 == $id) {
-				$queue++;//будет перенесено в game_make.php
-				fwrite($info, $gamer_1."\n".$gamer_2."\n".$queue);
+			if ($queue % 2 == BLACK && $gamer_1 == $id) {
 				fclose($info);
 				return 1;
-			}elseif ($queue % 2 == BLACK && $gamer_2 == $id) {
-				$queue++;//будет перенесено в game_make.php
-				fwrite($info, $gamer_1."\n".$gamer_2."\n".$queue);
+			}elseif ($queue % 2 == WHITE && $gamer_2 == $id) {
 				fclose($info);
 				return 1;
 			}
