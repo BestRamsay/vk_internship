@@ -8,11 +8,11 @@ game_control -right->game_make
 
 
 note top of game_make 
-<size:10>Конструктор, на основе clear_board.txt,
-<size:10>создает файл game_name.txt в папке /game/game_name, 
-<size:10>в котором происходит сама игра.
-<size:10>set-функция меняет значения в матрице,
-<size:10>get-функции берут из матрицы состояния "фигур".
+<size:10>Конструктор создает на машине игрока доску
+<size:10>с фигурами. Но сама игра происходит на сервере в файле 
+<size:10> game_name.txt в папке /game/game_name.
+<size:10>Игра на изображается в виде простой записной книги
+<size:10>где по очереди записываются ходы черных и белых. 
 end note
 
 
@@ -20,7 +20,7 @@ note top of connection_control
 <size:10>Конструктор заполняет(сначала создает) файл,
 <size:10>table_hash_game.txt,в котором хранится хеш  
 <size:10> и соответствующие ему номер игры.
-<size:10>По ним происходит валидация пользователей
+<size:10>По нему происходит валидация пользователей
 <size:10>и поиск номера игры.
 end note
 
@@ -37,11 +37,14 @@ class game_API {
 
 class connection_control {
 
-+control_start(status,key)
++control_start(status,key){}
 
+-get_id()
+-get_hash(key)
 -create_game(key_phrase)
--control_end()
--control_valid_key_game(key_phrase, need_game_number)
+-control_end(name)
+-control_valid_key_game(hash, need_game_number)
+-add_gamer(key)
 }
 
 class  manage_step <<interface>> {
@@ -57,11 +60,14 @@ class game_control {
 +set_step() {}
 +get_status() {}
 
--check_valid()
--control_exist_game()
+-control_user(hash , id)
 -control_step()
 -control_king_safety()
 -control_checkmate()
+
+-view_status_game(key_phrase)
+-create_board(game_number)
+-change_position()
 }
 
 class game_make {
