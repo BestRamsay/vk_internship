@@ -19,10 +19,6 @@ class connection_control implements connection_user{
 	
 	public function control_start($status,$key){
 		switch ($status) {
-			case FIRST_START:
-				get_id();
-				break;
-
 			case NEW_GAME:
 				create_game($key);
 				break;
@@ -39,9 +35,7 @@ class connection_control implements connection_user{
 }
 
 function get_id(){
-	if(!isset($_COOKIE["id"])){
 		setcookie("id", rand(1, 200000), time() + HOUR);
-	}
 }
 
 
@@ -54,23 +48,27 @@ function get_hash($key){
 
 
 function create_game($key_phrase){	
-	get_hash($key_phrase);
+	if (!isset($_COOKIE["id"])){
+		setcookie("id", rand(1, 200000), time() + HOUR);
+		header("Refresh: 0");
+	}else{
+		get_hash($key_phrase);
+		$game_name = time();
 
-	$game_name = time();
+		if (!file_exists("./game/$game_name")  && !control_valid_key_game(md5($key_phrase),NOT_NEED) ){
+			$shift == MAX_SHIFT ? $shift = 0 : $shift++ ;
+			$table = fopen("table_hash_game.txt", "ab");
+			
+			mkdir("./game/$game_name");
 
-	if (!file_exists("./game/$game_name")  && !control_valid_key_game(md5($key_phrase),NOT_NEED) ){
-		$shift == MAX_SHIFT ? $shift = 0 : $shift++ ;
-		$table = fopen("table_hash_game.txt", "ab");
-		
-		mkdir("./game/$game_name");
-
-		$info = fopen("./game/$game_name/"."$game_name"."_info.txt", "ab");
-		$game = fopen("./game/$game_name/"."$game_name".".txt", "w");
-		fwrite($info, $_COOKIE["id"]."\n"."0"."\n".WHITE);
-		fwrite($table, md5($key_phrase)."\n".$game_name."\n");
-		fclose($table);
-		fclose($info);
-		fclose($game);
+			$info = fopen("./game/$game_name/"."$game_name"."_info.txt", "ab");
+			$game = fopen("./game/$game_name/"."$game_name".".txt", "w");
+			fwrite($info, $_COOKIE["id"]."\n"."0"."\n".WHITE);
+			fwrite($table, md5($key_phrase)."\n".$game_name."\n");
+			fclose($table);
+			fclose($info);
+			fclose($game);
+		}
 	}
 }
 
@@ -155,21 +153,23 @@ function add_gamer($key){
 
 
 function control_end($name){
+	if (file_exists("./game/$name")) {
+	    $file = @file("table_hash_game.txt");
+	    $num = 1; 
+	    while (!($file[$num] == "$name"."\n")) {
+	    	$num++;
+	    }
+	    unset($file[$num-1]);
+	    unset($file[$num]);
+	    $fileOpen = @fopen("table_hash_game.txt","w"); 
+	    fputs($fileOpen,implode("",$file)); 
+	    fclose($fileOpen);
 
-    $file = @file("table_hash_game.txt");
-    $num = 1; 
-    while (!($file[$num] == "$name"."\n")) {
-    	$num++;
-    }
-    unset($file[$num-1]);
-    unset($file[$num]);
-    $fileOpen = @fopen("table_hash_game.txt","w"); 
-    fputs($fileOpen,implode("",$file)); 
-    fclose($fileOpen);
-
-    unlink("./game/$name/$name"."_info.txt");
-	unlink("./game/$name/$name".".txt");
-	rmdir("./game/$name");
+	    unlink("./game/$name/$name"."_info.txt");
+		unlink("./game/$name/$name".".txt");
+		rmdir("./game/$name");
+	}else
+	echo "Game not exist".NEW_STR;
 }
 
 
