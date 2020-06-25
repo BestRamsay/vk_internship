@@ -20,6 +20,11 @@ define(BLACK_PAWN, "bp");
 
 //for parse
 
-define(name, value)
+define(KING, "k");
+define(QUEEN, "q");
+define(CASTLE, "c");
+define(KNIGHT, "h");
+define(BISHOP, "b");
+define(PAWN, "p");
 
 ?>
