@@ -1,7 +1,9 @@
 <?
 
-define(SHIFT_BYTE, 9);
+define(SHIFT_BYTE, 7);
 
+
+include_once 'defines_army.php';
 
 function read_step($game){
 	$history_step = fopen("./game/$game/$game".".txt", "rb");
@@ -11,11 +13,14 @@ function read_step($game){
 	$queue = fgets($info);
 	$queue = fgets($info);
 
+	if ($queue == 0) {
+		return 0;
+	}
 	if ($queue % 2 == 0){
-		fseek($history_step, ((floor($queue / 2 ) + (ceil($queue / 2 ) -1) ) * SHIFT_BYTE));
+		fseek($history_step, ((floor($queue / 2 ) + ceil($queue / 2 )-1 ) * SHIFT_BYTE));
 	}
 	else {
-		fseek($history_step, ((floor($queue / 2) + (ceil($queue / 2 ) -1) ) * SHIFT_BYTE));
+		fseek($history_step, ((floor($queue / 2) + ceil($queue / 2 ) -1) * SHIFT_BYTE));
 	}
 	$step = fgets($history_step);
 	fclose($history_step);
@@ -30,6 +35,7 @@ function write_step($game, $step){
 	$gamer_1 = trim(fgets($info));
 	$gamer_2 = trim(fgets($info));
 	$queue = trim(fgets($info));
+
 	fseek($info, 0);
 	fwrite($history_step, $step);
 	$queue++;
@@ -38,7 +44,20 @@ function write_step($game, $step){
 	fclose($info);
 }
 
+function construct_board()
+{
+	$original_board = array("a" => array(0,WHITE_CASTLE, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_CASTLE), 
+							"b" => array(0,WHITE_KNIGHT, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_KNIGHT),
+							"c" => array(0,WHITE_BISHOP, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_BISHOP),
+							"d" => array(0,WHITE_QUEEN, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_QUEEN),
+							"e" => array(0,WHITE_KING, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_KING),
+							"f" => array(0,WHITE_BISHOP, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_BISHOP),
+							"g" => array(0,WHITE_KNIGHT, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_KNIGHT),
+							"h" => array(0,WHITE_CASTLE, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_CASTLE));
 
+
+	return $original_board;
+}
 
 
 
