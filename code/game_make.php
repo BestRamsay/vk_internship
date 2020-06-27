@@ -56,11 +56,8 @@ function construct_board()
 							array(0,WHITE_KNIGHT, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_KNIGHT),
 							array(0,WHITE_CASTLE, WHITE_PAWN, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, EMPTY_SQR, BLACK_PAWN, BLACK_CASTLE));
 
-
 	return $original_board;
 }
-
-
 
 
 ?>

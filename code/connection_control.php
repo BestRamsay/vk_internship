@@ -1,46 +1,15 @@
 <?php
 	
-define(NEW_STR, "<br />");
-define(NEW_GAME , "new");
-define(EXIST , "exist");
+include_once 'defines_army.php';
 
-define(NEED, 1);
-define(NOT_NEED, 0);
-define(HOUR, 3600);
-define(MAX_SHIFT, 100);
-define(WHITE, 0);
-define(NO_SECOND_PLAYER, 0);
-
-interface connection_user{
-	public function control_start($status,$key);
-}
-
-class connection_control implements connection_user{
-	
-	public function control_start($status,$key){
-		switch ($status) {
-			case NEW_GAME:
-				create_game($key);
-				break;
-			
-			case EXIST:
-				add_gamer($key);
-				break;
-			
-			default:
-				echo "Please select a game type".NEW_STR;
-				break;
-		}	
-	}
-}
 
 function get_id(){
-		setcookie("id", rand(1, 200000), time() + HOUR);
+		setcookie("id", rand(1, 200000), time() + HOUR_AND_HALF);
 }
 
 
 function get_hash($key){
-	setcookie("hash", md5($key) , time() + HOUR);
+	setcookie("hash", md5($key) , time() + HOUR_AND_HALF);
 	if(!isset($_COOKIE["hash"]) || $_COOKIE["hash"] != md5($key)){
 		header("Refresh: 0");
 	}
@@ -49,7 +18,7 @@ function get_hash($key){
 
 function create_game($key_phrase){	
 	if (!isset($_COOKIE["id"])){
-		setcookie("id", rand(1, 200000), time() + HOUR);
+		setcookie("id", rand(1, 200000), time() + HOUR_AND_HALF);
 		header("Refresh: 0");
 	}else{
 		get_hash($key_phrase);
@@ -115,6 +84,10 @@ function control_valid_key_game($hash, $need_game_number){
 
 
 function add_gamer($key){
+	if (!isset($_COOKIE["id"])){
+		setcookie("id", rand(1, 200000), time() + HOUR_AND_HALF);
+		header("Refresh: 0");
+	}
 	get_hash($key);
 	$check_value = trim(control_valid_key_game(md5($key),NEED));
 	if (!($check_value == 0) ) {
@@ -127,7 +100,6 @@ function add_gamer($key){
 
 		if (!isset($_COOKIE["id"])){
 			if ($gamer_2 == NO_SECOND_PLAYER){
-				#play with yourself
 				fwrite($info, $gamer_1.$_COOKIE["id"]."\n".$queue);
 			}
 			else {
@@ -154,6 +126,12 @@ function add_gamer($key){
 
 function control_end($name){
 	if (file_exists("./game/$name")) {
+		$game = fopen("./game/$name/$name".".txt", "rb");
+		while (!feof($game)) {
+			echo fgets($game);
+		}
+		fclose($game);
+
 	    $file = @file("table_hash_game.txt");
 	    $num = 1; 
 	    while (!($file[$num] == "$name"."\n")) {

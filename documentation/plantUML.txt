@@ -1,8 +1,7 @@
 @startuml
-game_API -right-> manage_step
-game_API -up-> connection_user
-connection_control .left.|> connection_user
-manage_step <|.right. game_control
+api .left.|>game_API
+connection_control -left-> api
+game_control -left-> api
 game_control -up->connection_control
 game_control -right->game_make
 
@@ -25,14 +24,23 @@ note top of connection_control
 end note
 
 
-class game_API {
+class game_API <<interface>>{
+
++start_game(state, key)
++make_step(figure, point_A, point_B)
++status_game()
++give_up()
+
+}
+
+class api {
 +$_COOKIE["id"];
 +$_COOKIE["hash"];
 
-+start_game(state, key)
-+make_step(figure, point A, point B)
-+status_game()
-
++start_game(state, key){}
++make_step(figure, point_A, point_B){}
++status_game(){}
++give_up(){}
 }
 
 class connection_control {
@@ -41,41 +49,29 @@ class connection_control {
 
 -get_id()
 -get_hash(key)
--create_game(key_phrase)
--control_end(name)
--control_valid_key_game(hash, need_game_number)
--add_gamer(key)
++create_game(key_phrase)
++control_end(name)
++control_valid_key_game(hash, need_game_number)
++add_gamer(key)
 }
 
-class  manage_step <<interface>> {
-+set_step()
-+get_status()
-}
-
-class connection_user <<interface>> {
-+control_start(status,key)
-}
 
 class game_control {
-+set_step() {}
-+get_status() {}
++go_step(figure, start, finish)
++view_status_game(key_phrase)
 
 -control_user(hash , id)
--control_step()
--control_king_safety()
--control_checkmate()
+-control_step(step, board)
+-control_exist_figure(step, board) 
+-control_through_figure(step, board)  
+-control_final_point(step, $board) 
+-parser_step(parse_string)
 
--view_status_game(key_phrase)
--create_board(game_number)
--change_position()
 }
 
 class game_make {
--fill_board
-
-+construct_board(game_name)
-+set_on_board()
-+get_board_status()
-+get_figure_status()
++construct_board()
++write_step(game, step)
++read_step(game)
 }
 @enduml
